@@ -11,12 +11,18 @@
 const StorageClient = require('./storage-client');
 
 function main() {
-        const client = new StorageClient({
-                url: 'http://localhost:3001'
-        });
-        client.onMessages(messages => {
-                console.log('messages.length', messages.length);
-        });
+
+  const client = new StorageClient({
+    url: 'http://localhost:3001'
+  });
+
+  client.onTweets(tweets => {
+    console.log('tweets.length', tweets.length);
+  });
+
+  client.onDeletions(deletions => {
+    console.log('deletions', deletions);
+  });
 }
 
 main();
