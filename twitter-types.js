@@ -100,8 +100,8 @@ TwitterTweet.define(t.struct({
   //important part
   id_str: Str,
   created_at: TwitterDate,
-  favorite_count: Num,
-  retweet_count: Num,
+  favorite_count: MNum,
+  retweet_count: MNum,
   text: Str,
   user: TwitterUser,
 
