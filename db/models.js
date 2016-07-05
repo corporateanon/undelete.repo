@@ -81,7 +81,7 @@ module.exports = function (db) {
       defaultValue: false,
     },
     deletionTime: {
-      type: Sequelize.BOOLEAN,
+      type: Sequelize.DATE,
       allowNull: true,
     },
     chainId: {
@@ -91,9 +91,6 @@ module.exports = function (db) {
 
     // user related
 
-    // userId: {
-    //   type: Sequelize.STRING
-    // },
     userName: {
       type: Sequelize.STRING
     },
@@ -108,43 +105,23 @@ module.exports = function (db) {
     },
   });
 
+  const UnresolvedDeletion = db.define('unresolvedDeletion', {
+    id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    time: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
+  });
 
   Tweet.belongsTo(User);
-
 
   return {
     Tweet: Tweet,
     User: User,
+    UnresolvedDeletion: UnresolvedDeletion,
   };
 
 };
-
-
-
-// id_str: Str,
-// originalCreatedAt: TwitterDate,
-// text: Str,
-// user: TwitterUser,
-
-
-
-
-
-
-
-
-
-
-
-  // id_str: Str,
-  // screen_name: Str,
-  // name: Str,
-  // created_at: TwitterDate, //note: "Mon Nov 29 21:18:15 +0000 2010" 
-  // entities: maybe(list(TwitterEntity)),
-  // favourites_count: Num,
-  // followers_count: Num,
-  // friends_count: Num,
-  // listed_count: Num,
-  // protected: Bool,
-  // statuses_count: Num,
-  // verified: Bool,

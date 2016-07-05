@@ -10,7 +10,8 @@ const Attachment = t.struct({
 }, 'Attachment');
 
 const Deletion = t.struct({
-  id: t.String
+  id: t.String,
+  time: t.Date,
 }, 'Deletion');
 
 const Tweet = t.struct({
