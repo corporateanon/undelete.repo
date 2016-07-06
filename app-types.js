@@ -3,6 +3,8 @@
 const t = require('tcomb');
 const TwitterTweet = require('./twitter-types').TwitterTweet;
 
+const JsonDate = t.refinement(t.Date, (n) => true, 'JsonDate');
+JsonDate.fromJSON = (n) => new Date(n);
 
 const Attachment = t.struct({
   url: t.String,
@@ -11,7 +13,7 @@ const Attachment = t.struct({
 
 const Deletion = t.struct({
   id: t.String,
-  time: t.Date,
+  time: JsonDate,
 }, 'Deletion');
 
 const Tweet = t.struct({

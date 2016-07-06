@@ -2,30 +2,26 @@
 
 const StorageClient = require('./storage-client');
 const DbStorage = require('./db/storage');
-const co = require('co');
+const conf = require('./conf')();
 
 function main() {
 
-  const s = new DbStorage({
-    dsn: 'postgres://postgres:asd123@localhost/undelete'
-  });
+  const st = new DbStorage({ dsn: conf.db.dsn });
 
   const client = new StorageClient({
-    url: 'http://localhost:3001'
+    url: conf.storage.url
   });
 
   client.onTweets(tweets => {
-    console.log('tweets.length', tweets.length);
-
-    co(function* () {
-      for (let i = 0; i < tweets.length; i++) {
-        yield s.put(tweets[i].body);
-      }
-    }).then(() => console.log('ok!'), (e) => console.error('ERR', e));
+    st.addTweets(tweets)
+      .then(() => console.log('Tweets added:', tweets.length),
+        (e) => console.error('addTweets() ERR:', e));
   });
 
   client.onDeletions(deletions => {
-    console.log('deletions', deletions);
+    st.addDeletions(deletions)
+      .then(() => console.log('Deletions added:', deletions.length),
+        (e) => console.error('addDeletions() ERR:', e));
   });
 }
 

@@ -114,6 +114,8 @@ module.exports = class DbStorage {
         .value();
       yield Tweet.bulkCreate(insertTweets);
 
+      yield this._resolveDeletions(_(insertTweets).map('id').value());
+
       const usersToUpdate = _(tweetsUniqByUser)
         .filter(twt => existingUsersLastTweetTimesById[twt.body.user.id_str] &&
             existingUsersLastTweetTimesById[twt.body.user.id_str].lastTweetTime < twt.body.created_at)
@@ -124,6 +126,43 @@ module.exports = class DbStorage {
       for (let i = 0; i < usersToUpdate.length; i++) {
         let user = usersToUpdate[i];
         yield this.models.User.update(user, { where: {id: user.id} }); //WHY does it work?
+      }
+
+    }.bind(this));
+  }
+
+  _resolveDeletions(tweetIds) {
+    return co(function* () {
+      //Select deletions by ids.
+      //Select tweets by ids of found deletions.
+      //Update each tweet with isDeleted=true, deletionTime=time
+      //Delete the deletions by ids of found deletions.
+      const Tweet = this.models.Tweet;
+      const Del = this.models.UnresolvedDeletion;
+
+      const foundDeletions = yield Del.findAll({ where: { id: { $in:tweetIds } } });
+
+      const foundDeletionsIds = _(foundDeletions)
+        .map('id')
+        .value();
+
+      const foundDeletionsById = _(foundDeletions)
+        .groupBy('id')
+        .mapValues(0)
+        .value();
+
+      const tweetsToUpdate = yield Tweet.findAll({ where: { id: { $in:foundDeletionsIds } } });
+
+      for (let i = 0; i < tweetsToUpdate.length; i++) {
+        let tweet = tweetsToUpdate[i];
+        yield tweet.update({
+          isDeleted: true,
+          deletionTime: foundDeletionsById[tweet.id].time,
+        });
+      }
+
+      if(foundDeletionsIds.length) {
+        yield Del.destroy({ where: { id: { $in: foundDeletionsIds }}});
       }
 
     }.bind(this));
